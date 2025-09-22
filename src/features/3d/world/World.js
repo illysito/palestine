@@ -1,8 +1,9 @@
 //LEGACY IMPORTS
-import gsap from 'gsap'
+// import gsap from 'gsap'
 // import * as THREE from 'three'
 import { Vector2 } from 'three'
 import { EffectComposer } from 'three/examples/jsm/postprocessing/EffectComposer.js'
+import { OutlinePass } from 'three/examples/jsm/postprocessing/OutlinePass.js'
 import { RenderPass } from 'three/examples/jsm/postprocessing/RenderPass.js'
 import { ShaderPass } from 'three/examples/jsm/postprocessing/ShaderPass.js'
 import { UnrealBloomPass } from 'three/examples/jsm/postprocessing/UnrealBloomPass.js'
@@ -33,12 +34,14 @@ class World {
     this.scene = createScene()
     this.renderer = createRenderer()
     this.loop = new Loop(this.camera, this.scene, this.renderer)
-    // adding canvas element to the webflow container
     container.append(this.renderer.domElement)
-    this.initPostprocessing()
-    // INITS!!!!!
 
-    this.initPaddle()
+    this.initPostprocessing()
+
+    // INITS!!!!!
+    // this.initGradientPlane()
+    this.initPetal()
+    // this.initStarfield(5000)
     this.initLights(-2, 2, 3, 20, 0xfffbf6, false)
     // console.log('mobile 3d is running!')
 
@@ -53,25 +56,32 @@ class World {
   // BLOOM POST PROCESSING INIT
   initPostprocessing() {
     let pixelRatioForBloom = window.devicePixelRatio || 1 // Not for renderer
-    // console.log(pixelRatioForBloom)
-
-    let bloomStrength =
-      0.5 * gsap.utils.mapRange(0, 1440, 0, 1.2, window.innerWidth)
-    if (isDesktopOrTablet()) {
-      bloomStrength = 0.2
-    }
 
     this.composer = new EffectComposer(this.renderer)
 
     const renderPass = new RenderPass(this.scene, this.camera)
-    let bloomPass
 
+    let bloomPass
+    let bloomStrength = 0
+    if (isDesktopOrTablet()) {
+      bloomStrength = 0.2
+    }
     bloomPass = new UnrealBloomPass(
       new Vector2(window.innerWidth, window.innerHeight),
       bloomStrength * pixelRatioForBloom, // strength (ALWAYS DIVIDE BY PIXEL RATIO to AVOID SHIT)
-      0.2, // radius
-      0.5 // threshold
+      1.0, // radius
+      0.0 // threshold
     )
+
+    const outlinePass = new OutlinePass(
+      new Vector2(window.innerWidth, window.innerHeight),
+      this.scene,
+      this.camera
+    )
+    outlinePass.edgeStrength = 2.5
+    outlinePass.edgeGlow = 0.5
+    outlinePass.edgeThickness = 1.0
+    outlinePass.visibleEdgeColor.set('#000000')
 
     const fxaaPass = new ShaderPass(FXAAShader)
     const pixelRatio = this.renderer.getPixelRatio()
@@ -81,7 +91,8 @@ class World {
       1 / (window.innerHeight * pixelRatio)
 
     this.composer.addPass(renderPass)
-    if (bloomPass) this.composer.addPass(bloomPass)
+    console.log(bloomPass)
+    this.composer.addPass(outlinePass)
     this.composer.addPass(fxaaPass)
 
     // Override loop’s render if needed
@@ -90,11 +101,25 @@ class World {
     }
   }
 
-  async initPaddle() {
-    const { createPaddle } = await import('../components/paddle.js')
-    const paddle = await createPaddle()
-    this.scene.add(paddle)
-    this.loop.updatables.push(paddle)
+  async initPetal() {
+    const { createPetal } = await import('../components/petal.js')
+    const petal = await createPetal()
+    this.scene.add(petal)
+    this.loop.updatables.push(petal)
+  }
+
+  async initStarfield(particleCount) {
+    const { createStarfield } = await import('../components/starfield.js')
+    const starfield = createStarfield(particleCount, this.camera)
+    this.scene.add(starfield)
+    this.loop.updatables.push(starfield)
+  }
+
+  async initGradientPlane() {
+    const { createGradPlane } = await import('../components/gradient_plane')
+    const plane = createGradPlane()
+    this.scene.add(plane)
+    this.loop.updatables.push(plane)
   }
 
   async initLights(x, y, z, int, color, isMove) {

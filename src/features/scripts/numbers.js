@@ -1,4 +1,4 @@
-import { $$ } from './utils/dom'
+import { $$ } from '../utils/dom'
 
 let killedGaza = 0
 let killedWestBank = 0

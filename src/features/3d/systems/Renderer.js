@@ -7,7 +7,7 @@ function createRenderer() {
     alpha: true,
     preserveDrawingBuffer: true,
   })
-  renderer.setClearColor(0xfdfdfd, 1)
+  renderer.setClearColor(0x040404, 0)
   renderer.physicallyCorrectLights = true
   renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
   renderer.toneMapping = ReinhardToneMapping // or ACESFilmicToneMapping

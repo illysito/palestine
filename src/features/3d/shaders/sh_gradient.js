@@ -137,7 +137,7 @@ void main() {
   // OUTPUT
 
   vertexColor.w = 0.85;
-  vec4 outColor = mix(color, vertexColor, 4.0 * uv.x);
+  vec4 outColor = mix(color, vertexColor, 2.4 * uv.x);
   gl_FragColor = vertexColor;
   gl_FragColor = outColor;
 }
@@ -249,7 +249,8 @@ void main() {
 
   // vColor = vec4(0.5, 0.5, 0.5, 1.0); // GRIS
   // vColor = rgb(vec4(119.0, 100.0, 228.0, 255.0)); // LILA
-  vColor = rgb(vec4(30.0, 250.0, 255.0, 255.0)); // AZUL
+  // vColor = rgb(vec4(30.0, 250.0, 255.0, 255.0)); // AZUL
+  vColor = rgb(vec4(240.0, 20.0, 20.0, 255.0)); // ROJO
   // vColor = rgb(vec4(255.0, 251.0, 248.0, 255.0)); // BLANCO
   vColor.r += 0.15 * u_mouseX * u_mouseY;
 
